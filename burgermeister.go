@@ -4,30 +4,47 @@ import (
 	"fmt"
 )
 
+// set values that determine key determinations the burgermeister makes
 const startingBread = 1000
 const minimumBreadToRecruitBreadWorkers = startingBread * .95
 const minimumBreadToRecruitGeneralWorkers = startingBread * 2
 
 const breadForAMeal = 4
 
+// Burgermeister models the person overseeing the wellbeing and operation of a town
 type Burgermeister struct {
 	stockpile        *Stockpile
 	workers          []*Worker
 	recruitmentRules []*RecruitmentRule
 }
 
+// RecruitmentRule models a determination for when to recruit whom into the town
+type RecruitmentRule struct {
+	item      string
+	cmp       string
+	threshold int
+	worker    *Worker
+}
+
+// initializeBurg establishes the initial structure and conditions for the town
 func (bm *Burgermeister) initializeBurg() {
+	// the town has a stockpile of resources which citizens contribute to and draw from
 	bm.stockpile = &Stockpile{}
 
+	// all we start with in the stockpile is enough bread to get us going
 	bm.stockpile.stock = make(map[string]int, 0)
 	bm.stockpile.stock["bread"] = startingBread
 
+	// these are the channels citizens will use to contribute to and draw from the stockpile;
+	// they are the stockpile's input and output conduits
 	bm.stockpile.dropoff = make(chan Stockupdate)
 	bm.stockpile.pickup = make(chan Stockupdate)
 	bm.stockpile.query = make(chan string)
 
+	// the burgermeister begins with no citizens :-(
 	bm.workers = make([]*Worker, 0, 0)
 
+	// the burgermeister has a set of rules for when to recruit new citizens
 	bm.recruitmentRules = make([]*RecruitmentRule, 0, 0)
 	bm.recruitmentRules = append(bm.recruitmentRules, &RecruitmentRule{
 		item:      "wheat",
@@ -58,6 +75,7 @@ func (bm *Burgermeister) initializeBurg() {
 	})
 }
 
+// recruitWorkers had its own global logic, and applies the logic encoded by the set of recruitmentRules
 func (bm *Burgermeister) recruitWorkers() {
 	if bm.stockpile.stock["bread"] < minimumBreadToRecruitBreadWorkers {
 		fmt.Printf(">>>>  not enough bread to recruit new bread workers !\n")
@@ -85,12 +103,22 @@ func (bm *Burgermeister) recruitWorkers() {
 	}
 }
 
+// the actual recruiting
+func (bm *Burgermeister) recruitWorker(worker *Worker) {
+	fmt.Printf("Burgermeister.recruitWorker : %s\n", worker.name)
+
+	bm.workers = append(bm.workers, worker)
+	go worker.job.goToWork(bm.stockpile)
+}
+
+// eat, drink, and keep working!
 func (bm *Burgermeister) feedWorkers() {
 	for _, v := range bm.workers {
 		bm.feedWorker(v)
 	}
 }
 
+// the actual feeding
 func (bm *Burgermeister) feedWorker(worker *Worker) {
 	feedback := make(chan int)
 
@@ -109,13 +137,9 @@ func (bm *Burgermeister) feedWorker(worker *Worker) {
 	}
 }
 
-func (bm *Burgermeister) recruitWorker(worker *Worker) {
-	fmt.Printf("Burgermeister.recruitWorker : %s\n", worker.name)
-
-	bm.workers = append(bm.workers, worker)
-	go worker.job.goToWork(bm.stockpile)
-}
-
+// the burgermeister handles additions to and removals from the stockpile;
+// this is the function by which we receive and process those updates;
+// this function is designed to run continually, as a go routine
 func (bm *Burgermeister) updateStockpile() {
 	var added Stockupdate
 	var taken Stockupdate
@@ -134,6 +158,7 @@ func (bm *Burgermeister) updateStockpile() {
 	}
 }
 
+// report the makeup of the town's population
 func (bm *Burgermeister) listWorkers() {
 	for k, v := range bm.workers {
 		fmt.Printf("worker %d is %s\n", k, v.name)
@@ -141,16 +166,10 @@ func (bm *Burgermeister) listWorkers() {
 	fmt.Printf("\n")
 }
 
+// report the contents / status of the town's stockpile
 func (bm *Burgermeister) showStockpile() {
 	for k, v := range bm.stockpile.stock {
 		fmt.Printf("stock of %s is %d\n", k, v)
 	}
 	fmt.Printf("\n")
-}
-
-type RecruitmentRule struct {
-	item      string
-	cmp       string
-	threshold int
-	worker    *Worker
 }
