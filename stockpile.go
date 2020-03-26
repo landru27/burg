@@ -12,3 +12,9 @@ type Stockupdate struct {
 	itemqty  int
 	result   chan int
 }
+
+var orderedStockpile = [...]string{
+	"wheat",
+	"flour",
+	"bread",
+}
