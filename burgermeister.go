@@ -168,8 +168,11 @@ func (bm *Burgermeister) listWorkers() {
 
 // report the contents / status of the town's stockpile
 func (bm *Burgermeister) showStockpile() {
-	for k, v := range bm.stockpile.stock {
-		fmt.Printf("stock of %s is %d\n", k, v)
+	for _, v := range orderedStockpile {
+		if _, ok := bm.stockpile.stock[v]; ok {
+			fmt.Printf("stock of %s is %d\n", v, bm.stockpile.stock[v])
+		}
 	}
+
 	fmt.Printf("\n")
 }
