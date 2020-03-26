@@ -4,13 +4,6 @@ import (
 	"fmt"
 )
 
-// set values that determine key determinations the burgermeister makes
-const startingBread = 1000
-const minimumBreadToRecruitBreadWorkers = startingBread * .95
-const minimumBreadToRecruitGeneralWorkers = startingBread * 2
-
-const breadForAMeal = 4
-
 // Burgermeister models the person overseeing the wellbeing and operation of a town
 type Burgermeister struct {
 	stockpile        *Stockpile
