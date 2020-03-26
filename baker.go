@@ -25,20 +25,20 @@ func (m *Baker) goToWork(stockpile *Stockpile) {
 func (m *Baker) performJob(stockpile *Stockpile, feedback chan int) {
 	flourforbread := Stockupdate{
 		itemname: "flour",
-		itemqty:  48,
+		itemqty:  flourForBread,
 		result:   feedback,
 	}
 	stockpile.pickup <- flourforbread
 	pickedup := <-feedback
 
-	if pickedup < 48 {
+	if pickedup < flourForBread {
 		fmt.Printf("baker could only find %d flour!\n", pickedup)
 		return
 	}
 
 	bakedbread := Stockupdate{
 		itemname: "bread",
-		itemqty:  12,
+		itemqty:  breadFromFlour,
 		result:   feedback,
 	}
 	stockpile.dropoff <- bakedbread

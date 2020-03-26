@@ -24,7 +24,7 @@ func (wf *Wheatfarmer) goToWork(stockpile *Stockpile) {
 func (wf *Wheatfarmer) performJob(stockpile *Stockpile, feedback chan int) {
 	farmedwheat := Stockupdate{
 		itemname: "wheat",
-		itemqty:  80,
+		itemqty:  wheatProduced,
 		result:   feedback,
 	}
 	stockpile.dropoff <- farmedwheat

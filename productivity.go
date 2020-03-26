@@ -6,3 +6,14 @@ const minimumBreadToRecruitBreadWorkers = startingBread * .90
 const minimumBreadToRecruitGeneralWorkers = startingBread * 2
 
 const breadForAMeal = 4
+
+// wheatfarmer
+const wheatProduced = 80
+
+// miller
+const wheatForFlour = 12
+const flourFromWheat = 36
+
+// baker
+const flourForBread = 48
+const breadFromFlour = 12
