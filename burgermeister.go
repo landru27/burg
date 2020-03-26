@@ -4,6 +4,12 @@ import (
 	"fmt"
 )
 
+const startingBread = 1000
+const minimumBreadToRecruitBreadWorkers = startingBread * .95
+const minimumBreadToRecruitGeneralWorkers = startingBread * 2
+
+const breadForAMeal = 4
+
 type Burgermeister struct {
 	stockpile        *Stockpile
 	workers          []*Worker
@@ -14,7 +20,7 @@ func (bm *Burgermeister) initializeBurg() {
 	bm.stockpile = &Stockpile{}
 
 	bm.stockpile.stock = make(map[string]int, 0)
-	bm.stockpile.stock["bread"] = 1000
+	bm.stockpile.stock["bread"] = startingBread
 
 	bm.stockpile.dropoff = make(chan Stockupdate)
 	bm.stockpile.pickup = make(chan Stockupdate)
@@ -53,8 +59,8 @@ func (bm *Burgermeister) initializeBurg() {
 }
 
 func (bm *Burgermeister) recruitWorkers() {
-	if bm.stockpile.stock["bread"] < 950 {
-		fmt.Printf(">>>>  not enough bread to recruit new workers !\n")
+	if bm.stockpile.stock["bread"] < minimumBreadToRecruitBreadWorkers {
+		fmt.Printf(">>>>  not enough bread to recruit new bread workers !\n")
 		return
 	}
 
@@ -90,7 +96,7 @@ func (bm *Burgermeister) feedWorker(worker *Worker) {
 
 	eatsomebread := Stockupdate{
 		itemname: "bread",
-		itemqty:  4,
+		itemqty:  breadForAMeal,
 		result:   feedback,
 	}
 	bm.stockpile.pickup <- eatsomebread
@@ -98,7 +104,7 @@ func (bm *Burgermeister) feedWorker(worker *Worker) {
 
 	if eaten < 1 {
 		fmt.Printf(">>>>  WORKERS ARE STARVING !!!\n")
-	} else if eaten < 4 {
+	} else if eaten < breadForAMeal {
 		fmt.Printf(">>>>  workers are hungry !\n")
 	}
 }
