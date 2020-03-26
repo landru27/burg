@@ -7,12 +7,17 @@ import (
 
 func main() {
 	fmt.Printf("starting\n")
+	fmt.Printf("\n")
 
+	// instantiate someone to run the town, and set up the town
 	burgermeister := &Burgermeister{}
 	burgermeister.initializeBurg()
 
+	// the burgermeister handles additions to and removals from the stockpile;
+	// kick off a routine to continuously receive and process those updates
 	go burgermeister.updateStockpile()
 
+	// the burgermeister's daily cycle : recruit, feed, and report
 	for {
 		burgermeister.recruitWorkers()
 		burgermeister.feedWorkers()
@@ -23,5 +28,6 @@ func main() {
 		time.Sleep(2000 * time.Millisecond)
 	}
 
+	fmt.Printf("\n")
 	fmt.Printf("stopping\n")
 }
