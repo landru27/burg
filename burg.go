@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const dailyCycleMilliseconds = 2000
+
 func main() {
 	fmt.Printf("starting\n")
 	fmt.Printf("\n")
@@ -25,7 +27,7 @@ func main() {
 		burgermeister.listWorkers()
 		burgermeister.showStockpile()
 
-		time.Sleep(2000 * time.Millisecond)
+		time.Sleep(dailyCycleMilliseconds * time.Millisecond)
 	}
 
 	fmt.Printf("\n")
