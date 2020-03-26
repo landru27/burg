@@ -20,10 +20,8 @@ type Burgermeister struct {
 
 // RecruitmentRule models a determination for when to recruit whom into the town
 type RecruitmentRule struct {
-	item      string
-	cmp       string
-	threshold int
-	worker    *Worker
+	ready  func(*Stockpile) bool
+	worker *Worker
 }
 
 // initializeBurg establishes the initial structure and conditions for the town
@@ -46,28 +44,47 @@ func (bm *Burgermeister) initializeBurg() {
 
 	// the burgermeister has a set of rules for when to recruit new citizens
 	bm.recruitmentRules = make([]*RecruitmentRule, 0, 0)
+	answer := make(chan int)
 	bm.recruitmentRules = append(bm.recruitmentRules, &RecruitmentRule{
-		item:      "wheat",
-		cmp:       "<",
-		threshold: 10,
+		ready: func(stockpile *Stockpile) bool {
+			stockpile.query <- Stockquery{"wheat", answer}
+			amountWheat := <-answer
+			if amountWheat < 10 {
+				return true
+			}
+
+			return false
+		},
 		worker: &Worker{
 			name: "wheat farmer",
 			job:  &Wheatfarmer{},
 		},
 	})
 	bm.recruitmentRules = append(bm.recruitmentRules, &RecruitmentRule{
-		item:      "flour",
-		cmp:       "<",
-		threshold: 10,
+		ready: func(stockpile *Stockpile) bool {
+			stockpile.query <- Stockquery{"flour", answer}
+			amountFlour := <-answer
+			if amountFlour < 10 {
+				return true
+			}
+
+			return false
+		},
 		worker: &Worker{
 			name: "miller",
 			job:  &Miller{},
 		},
 	})
 	bm.recruitmentRules = append(bm.recruitmentRules, &RecruitmentRule{
-		item:      "bread",
-		cmp:       "<",
-		threshold: 1000,
+		ready: func(stockpile *Stockpile) bool {
+			stockpile.query <- Stockquery{"bread", answer}
+			amountBread := <-answer
+			if amountBread < 1000 {
+				return true
+			}
+
+			return false
+		},
 		worker: &Worker{
 			name: "baker",
 			job:  &Baker{},
@@ -83,22 +100,8 @@ func (bm *Burgermeister) recruitWorkers() {
 	}
 
 	for _, v := range bm.recruitmentRules {
-		if v.cmp == "<" {
-			if bm.stockpile.stock[v.item] < v.threshold {
-				bm.recruitWorker(v.worker)
-			}
-		}
-
-		if v.cmp == "==" {
-			if bm.stockpile.stock[v.item] == v.threshold {
-				bm.recruitWorker(v.worker)
-			}
-		}
-
-		if v.cmp == ">" {
-			if bm.stockpile.stock[v.item] > v.threshold {
-				bm.recruitWorker(v.worker)
-			}
+		if v.ready(bm.stockpile) {
+			bm.recruitWorker(v.worker)
 		}
 	}
 }
