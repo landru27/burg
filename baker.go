@@ -18,7 +18,7 @@ func (m *Baker) goToWork(stockpile *Stockpile) {
 	for {
 		m.performJob(stockpile, m.feedback)
 
-		time.Sleep(time.Duration(randgen.Intn(1500)+250) * time.Millisecond)
+		time.Sleep(time.Duration(randgen.Intn(rangeMillisecondsForJob)+minimumMillisecondsForJob) * time.Millisecond)
 	}
 }
 

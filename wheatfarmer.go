@@ -17,7 +17,7 @@ func (wf *Wheatfarmer) goToWork(stockpile *Stockpile) {
 	for {
 		wf.performJob(stockpile, wf.feedback)
 
-		time.Sleep(time.Duration(randgen.Intn(1500)+250) * time.Millisecond)
+		time.Sleep(time.Duration(randgen.Intn(rangeMillisecondsForJob)+minimumMillisecondsForJob) * time.Millisecond)
 	}
 }
 
