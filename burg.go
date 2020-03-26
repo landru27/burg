@@ -13,9 +13,9 @@ func main() {
 	burgermeister := &Burgermeister{}
 	burgermeister.initializeBurg()
 
-	// the burgermeister handles additions to and removals from the stockpile;
-	// kick off a routine to continuously receive and process those updates
-	go burgermeister.updateStockpile()
+	// the burgermeister handles additions to and removals from and queries about the stockpile;
+	// kick off a routine to continuously receive and process those actions
+	go burgermeister.manageStockpile()
 
 	// the burgermeister's daily cycle : recruit, feed, and report
 	for {

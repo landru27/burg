@@ -39,7 +39,7 @@ func (bm *Burgermeister) initializeBurg() {
 	// they are the stockpile's input and output conduits
 	bm.stockpile.dropoff = make(chan Stockupdate)
 	bm.stockpile.pickup = make(chan Stockupdate)
-	bm.stockpile.query = make(chan string)
+	bm.stockpile.query = make(chan Stockquery)
 
 	// the burgermeister begins with no citizens :-(
 	bm.workers = make([]*Worker, 0, 0)
@@ -140,9 +140,10 @@ func (bm *Burgermeister) feedWorker(worker *Worker) {
 // the burgermeister handles additions to and removals from the stockpile;
 // this is the function by which we receive and process those updates;
 // this function is designed to run continually, as a go routine
-func (bm *Burgermeister) updateStockpile() {
+func (bm *Burgermeister) manageStockpile() {
 	var added Stockupdate
 	var taken Stockupdate
+	var inquiry Stockquery
 
 	for {
 		select {
@@ -154,6 +155,9 @@ func (bm *Burgermeister) updateStockpile() {
 			amount := min(bm.stockpile.stock[taken.itemname], taken.itemqty)
 			bm.stockpile.stock[taken.itemname] -= amount
 			taken.result <- amount
+
+		case inquiry = <-bm.stockpile.query:
+			inquiry.result <- bm.stockpile.stock[inquiry.itemname]
 		}
 	}
 }
