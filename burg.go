@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const dailyCycleMilliseconds = 2000
+
 func main() {
 	fmt.Printf("starting\n")
 	fmt.Printf("\n")
@@ -13,9 +15,9 @@ func main() {
 	burgermeister := &Burgermeister{}
 	burgermeister.initializeBurg()
 
-	// the burgermeister handles additions to and removals from the stockpile;
-	// kick off a routine to continuously receive and process those updates
-	go burgermeister.updateStockpile()
+	// the burgermeister handles additions to and removals from and queries about the stockpile;
+	// kick off a routine to continuously receive and process those actions
+	go burgermeister.manageStockpile()
 
 	// the burgermeister's daily cycle : recruit, feed, and report
 	for {
@@ -25,7 +27,7 @@ func main() {
 		burgermeister.listWorkers()
 		burgermeister.showStockpile()
 
-		time.Sleep(2000 * time.Millisecond)
+		time.Sleep(dailyCycleMilliseconds * time.Millisecond)
 	}
 
 	fmt.Printf("\n")

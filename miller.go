@@ -18,27 +18,27 @@ func (m *Miller) goToWork(stockpile *Stockpile) {
 	for {
 		m.performJob(stockpile, m.feedback)
 
-		time.Sleep(time.Duration(randgen.Intn(1500)+250) * time.Millisecond)
+		time.Sleep(time.Duration(randgen.Intn(rangeMillisecondsForJob)+minimumMillisecondsForJob) * time.Millisecond)
 	}
 }
 
 func (m *Miller) performJob(stockpile *Stockpile, feedback chan int) {
 	wheattogrind := Stockupdate{
 		itemname: "wheat",
-		itemqty:  12,
+		itemqty:  wheatForFlour,
 		result:   feedback,
 	}
 	stockpile.pickup <- wheattogrind
 	pickedup := <-feedback
 
-	if pickedup < 12 {
+	if pickedup < wheatForFlour {
 		fmt.Printf("miller could only find %d wheat!\n", pickedup)
 		return
 	}
 
 	groundflour := Stockupdate{
 		itemname: "flour",
-		itemqty:  36,
+		itemqty:  flourFromWheat,
 		result:   feedback,
 	}
 	stockpile.dropoff <- groundflour

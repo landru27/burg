@@ -17,14 +17,14 @@ func (wf *Wheatfarmer) goToWork(stockpile *Stockpile) {
 	for {
 		wf.performJob(stockpile, wf.feedback)
 
-		time.Sleep(time.Duration(randgen.Intn(1500)+250) * time.Millisecond)
+		time.Sleep(time.Duration(randgen.Intn(rangeMillisecondsForJob)+minimumMillisecondsForJob) * time.Millisecond)
 	}
 }
 
 func (wf *Wheatfarmer) performJob(stockpile *Stockpile, feedback chan int) {
 	farmedwheat := Stockupdate{
 		itemname: "wheat",
-		itemqty:  80,
+		itemqty:  wheatProduced,
 		result:   feedback,
 	}
 	stockpile.dropoff <- farmedwheat
