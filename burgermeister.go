@@ -61,6 +61,12 @@ func (bm *Burgermeister) initializeBurg() {
 				return true
 			}
 
+			stockpile.query <- Stockquery{"wheat", answer}
+			amountWheat := <-answer
+			if (amountWheat / amountFlour) >= 3 {
+				return true
+			}
+
 			return false
 		},
 		worker: &Worker{
@@ -73,6 +79,12 @@ func (bm *Burgermeister) initializeBurg() {
 			stockpile.query <- Stockquery{"bread", answer}
 			amountBread := <-answer
 			if amountBread < 1000 {
+				return true
+			}
+
+			stockpile.query <- Stockquery{"flour", answer}
+			amountFlour := <-answer
+			if (amountFlour / amountBread) >= 3 {
 				return true
 			}
 
