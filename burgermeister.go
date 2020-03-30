@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strconv"
 )
 
 // Burgermeister models the person overseeing the wellbeing and operation of a town
@@ -9,6 +11,7 @@ type Burgermeister struct {
 	stockpile        *Stockpile
 	workers          []*Worker
 	recruitmentRules []*RecruitmentRule
+	fileStats        *os.File
 }
 
 // RecruitmentRule models a determination for when to recruit whom into the town
@@ -18,7 +21,10 @@ type RecruitmentRule struct {
 }
 
 // initializeBurg establishes the initial structure and conditions for the town
-func (bm *Burgermeister) initializeBurg() {
+func (bm *Burgermeister) initializeBurg(f *os.File) {
+	// our stats file for writing a stream of stockpile stats
+	bm.fileStats = f
+
 	// the town has a stockpile of resources which citizens contribute to and draw from
 	bm.stockpile = &Stockpile{}
 
@@ -180,11 +186,26 @@ func (bm *Burgermeister) listWorkers() {
 
 // report the contents / status of the town's stockpile
 func (bm *Burgermeister) showStockpile() {
+	statsline := `{`
+
 	for _, v := range orderedStockpile {
 		if _, ok := bm.stockpile.stock[v]; ok {
 			fmt.Printf("stock of %s is %d\n", v, bm.stockpile.stock[v])
+
+			statsline = statsline + `"` + v + `"`
+			statsline = statsline + `:`
+			statsline = statsline + strconv.Itoa(bm.stockpile.stock[v])
+			statsline = statsline + `,`
 		}
 	}
+
+	statsline = statsline[0 : len(statsline)-1]
+	statsline = statsline + `}` + "\n"
+	_, err := bm.fileStats.WriteString(statsline)
+	if err != nil {
+		panic(err)
+	}
+	bm.fileStats.Sync()
 
 	fmt.Printf("\n")
 }

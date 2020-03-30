@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -11,9 +12,16 @@ func main() {
 	fmt.Printf("starting\n")
 	fmt.Printf("\n")
 
+	// open our stats file
+	f, err := os.Create("/tmp/burg-stats.json")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
 	// instantiate someone to run the town, and set up the town
 	burgermeister := &Burgermeister{}
-	burgermeister.initializeBurg()
+	burgermeister.initializeBurg(f)
 
 	// the burgermeister handles additions to and removals from and queries about the stockpile;
 	// kick off a routine to continuously receive and process those actions
