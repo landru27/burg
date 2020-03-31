@@ -101,6 +101,28 @@ func (bm *Burgermeister) initializeBurg(f *os.File) {
 			job:  &Baker{},
 		},
 	})
+	bm.recruitmentRules = append(bm.recruitmentRules, &RecruitmentRule{
+		ready: func(stockpile *Stockpile) bool {
+			qtyworkers := len(bm.workers)
+			qtyguards := 0
+			for _, v := range bm.workers {
+				if v.name == "guard" {
+					qtyguards++
+				}
+			}
+
+			fmt.Printf("qtyworkers, qtyguards : %d, %d\n", qtyworkers, qtyguards)
+			if qtyguards*5 < qtyworkers {
+				return true
+			}
+
+			return false
+		},
+		worker: &Worker{
+			name: "guard",
+			job:  &Guard{},
+		},
+	})
 }
 
 // recruitWorkers had its own global logic, and applies the logic encoded by the set of recruitmentRules
